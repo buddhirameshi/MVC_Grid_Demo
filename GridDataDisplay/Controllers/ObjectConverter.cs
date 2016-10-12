@@ -1,9 +1,6 @@
 ﻿using DataAccessor;
-using GridDataDisplay.Models;
-using System;
+using DataTransferObjects;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace GridDataDisplay.Controllers
 {
@@ -14,13 +11,13 @@ namespace GridDataDisplay.Controllers
         /// </summary>
         /// <param name="oneItem"></param>
         /// <returns></returns>
-        public ItemModels ToItemDto(Item oneItem)
+        public ItemDto ToItemDto(Item oneItem)
         {
             if (oneItem == null)
             {
                 return null;
             }
-            ItemModels dto = new ItemModels();
+            ItemDto dto = new ItemDto();
             dto.ItemId = oneItem.ItemId;
             dto.Price = oneItem.Price;
             dto.Description = oneItem.Description;
@@ -33,16 +30,16 @@ namespace GridDataDisplay.Controllers
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        public List<ItemModels> ToListItemDto(List<Item> items)
+        public List<ItemDto> ToListItemDto(List<Item> items)
         {
             if (items == null || items.Count == 0)
             {
                 return null;
             }
-            List<ItemModels> dtoList = new List<ItemModels>();
+            List<ItemDto> dtoList = new List<ItemDto>();
             foreach (var item in items)
             {
-                ItemModels dto = new ItemModels();
+                ItemDto dto = new ItemDto();
                 dto.ItemId = item.ItemId;
                 dto.Price = item.Price;
                 dto.Description = item.Description;
@@ -57,7 +54,7 @@ namespace GridDataDisplay.Controllers
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        public List<Item> ToListItems(List<ItemModels> itemsDto)
+        public List<Item> ToListItems(List<ItemDto> itemsDto)
         {
             if (itemsDto == null || itemsDto.Count == 0)
             {
@@ -80,7 +77,7 @@ namespace GridDataDisplay.Controllers
         /// </summary>
         /// <param name="oneDTO"></param>
         /// <returns></returns>
-        public Item ToItem(ItemModels oneDTO)
+        public Item ToItem(ItemDto oneDTO)
         {
             if (oneDTO == null)
             {
