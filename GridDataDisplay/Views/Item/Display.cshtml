@@ -1,0 +1,62 @@
+﻿
+@model IEnumerable<DataTransferObjects.ItemDto>
+
+@{
+    ViewBag.Title = "Display";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="wrapper">
+
+    <h2>Display</h2>
+    <hr/>
+
+
+    @(Html.ValidationSummary(true))
+    <table class="table-bordered table-responsive table-hover table-condensed table">
+        <tr class="table-header">
+            <th>
+                @Html.DisplayNameFor(model => model.ItemId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+
+            </th>
+
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @* <button class="alert-danger glyphicon-minus-sign"></button>*@
+                    @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ItemId })
+                </td>
+
+            </tr>
+        }
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                @Html.ActionLink("Add", "Create")
+            </td>
+        </tr>
+    </table>
+</div>

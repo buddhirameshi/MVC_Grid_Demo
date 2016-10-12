@@ -1,0 +1,79 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+    background-color:aquamarine;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+h1{
+    margin: 3% 35% 3% 35%;
+    float: left;
+}
+
+h2{
+  position:inherit;
+   
+    margin:0% 40% 0% 40%;
+}
+
+
+table
+{
+    background-color:antiquewhite;
+   border:solid 2px thin!important;
+   border-color:black!important;
+       width:80%
+  
+}
+
+.table-header
+{
+    background-color:grey;
+}
+
+
+.edit-form{
+        background-color:antiquewhite;
+        width:60%;
+        margin:5% 20% 2% 20%;
+        padding:5% 10%;
+}
+
+.info
+{
+    width: 70%;
+    float: left;
+    margin: 8% 15%;
+     background-color:antiquewhite;
+     padding: 2% 2%;
+}
+
+hr.line
+{
+    border:solid 0.25px;
+    color:silver!important;
+    position:inherit;
+width:80%;
+}
+
+.wrapper
+{
+        margin:2% 10% 0 10%;
+}
+
+.btn{
+    margin:2% 2%;
+    position:inherit;
+}
