@@ -135,10 +135,8 @@
     <Content Include="Content\glyphicons-halflings-regular.ttf" />
     <Content Include="Content\glyphicons-halflings-regular.woff" />
     <Content Include="Views\Item\Edit.cshtml" />
-    <Content Include="Views\Shared\DataError.cshtml" />
     <Content Include="Views\Shared\InputError.cshtml" />
     <Content Include="Views\Item\Create.cshtml" />
-    <Content Include="Views\Item\Delete12.cshtml" />
     <Content Include="Views\Item\Delete.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -175,7 +173,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\ItemModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
