@@ -11,7 +11,7 @@ namespace DataAccessor
     public class ToyRepository : IRepository<Item>
     {
         private ItemEntities context;
-
+        private enum ItemParams { Price,ItemId,Description};
 
         public ToyRepository(ItemEntities repository)
         {
@@ -99,6 +99,49 @@ namespace DataAccessor
                     setOfItems = items;
                 //}
                 return setOfItems;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        /// <summary>
+        /// Get items
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Item> GetItems(int pageId,int pageSize,string parameter,bool isAscending)
+        {
+            try
+            {
+                IEnumerable<Item> setOfItems = new List<Item>();
+                ItemParams enumParamerer;
+                if (!Enum.TryParse(parameter, true, out enumParamerer))
+                {
+                    return null;
+                }
+                else
+                {
+
+                    if (enumParamerer == ItemParams.Description&&isAscending)
+                    {
+                        var maxValue = context.Items
+                       .Where(someItems => someItems.Description != null)
+                       .OrderBy(someItems => someItems.Description).Take((pageId - 1) * pageSize).Max().Description;
+                        if (string.IsNullOrEmpty(maxValue))
+                        {
+                             setOfItems= context.Items
+                                         .Where(someItems => someItems.Description != null 
+                                         )
+                                        .OrderBy(someItems => someItems.Description).Take((pageId - 1) * pageSize);
+                        }
+                       
+                    }
+
+                    //}
+                    return setOfItems;
+                }
             }
             catch (SqlException ex)
             {
