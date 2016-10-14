@@ -15,35 +15,55 @@ namespace GridDataDisplay.Controllers
     {
         private ItemService service = new ItemService();
         private ObjectConverter converter = new ObjectConverter();
-       static int pageNumber=0; //this filed is static in order to keep the track of the page indexes. Useful to keep the track of sorting order in pagingation
+
 
 
         // GET: Items list
         public ActionResult Display(int?page,string sortOrder, string sortParam)
 
         {
+          
             try
             {
-                if(pageNumber==0)
+                
+                if (Session["PageNumber"] == null )
                 {
                     ViewBag.CurrentSort = "Descending";
                 }
-               else if(pageNumber<page)
+                else if (Convert.ToInt32(Session["PageNumber"]) == page)
+                {
+                    ViewBag.CurrentSort = string.IsNullOrEmpty(sortOrder) ? "Descending" : this.ReverseSortOrder(sortOrder);
+
+                }
+                else
                 {
                     ViewBag.CurrentSort = string.IsNullOrEmpty(sortOrder) ? "Descending" : sortOrder;
                 }
-               else 
+
+                if (page == null)
                 {
-                    ViewBag.CurrentSort = string.IsNullOrEmpty(sortOrder) ? "Descending" : this.ReverseSortOrder(sortOrder);
+                    if (Session["PageNumber"] == null)
+                    {
+                        page = 1;
+                    }
+                    else
+                    {
+                        page = Convert.ToInt32(Session["PageNumber"]);
+
+                    }
                 }
-               
+                else
+                {
+                    Session["PageNumber"] = page;
+                }
 
 
-                ViewBag.SortParam = string.IsNullOrEmpty(sortParam) ? "ItemId" : sortParam;
-                 ViewBag.CurrentSort = string.IsNullOrEmpty(sortOrder) ? "Descending" : this.ReverseSortOrder(sortOrder);
+                    ViewBag.SortParam = string.IsNullOrEmpty(sortParam) ? "ItemId" : sortParam;
                 sortOrder = ViewBag.CurrentSort;
                 int pageSize = ConfigDataReader.GetConfigIntValue("PageSize");
-                pageNumber= (page ?? 1);
+               int pageNumber = (int)page;
+
+                // Session["PageNumber"] = pageNumber;
 
                 return View(service.GetDataSet(sortOrder, sortParam).ToPagedList(pageNumber, pageSize));
             }
