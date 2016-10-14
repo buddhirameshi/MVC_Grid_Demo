@@ -18,10 +18,10 @@ namespace API
             this.repository = new ToyRepository(new ItemEntities());
         }
 
-        public IEnumerable<ItemDto> GetDataSet()
+
+        public IEnumerable<ItemDto> GetDataSet(string sortOrder=null,string sortParam=null)
         {
-          return  converter.ToListItemDto(repository.GetItems().ToList());
-           // return repository.GetItems();
+            return converter.ToListItemDto(repository.GetItems(sortOrder, sortParam).ToList());
         }
 
         public bool UpdateData(ItemDto dto)

@@ -1,5 +1,6 @@
-﻿
-@model IEnumerable<DataTransferObjects.ItemDto>
+﻿@model PagedList.IPagedList<DataTransferObjects.ItemDto>
+@using PagedList.Mvc;
+@*@model IEnumerable<DataTransferObjects.ItemDto>*@
 
 @{
     ViewBag.Title = "Display";
@@ -16,13 +17,14 @@
     <table class="table-bordered table-responsive table-hover table-condensed table">
         <tr class="table-header">
             <th>
-                @Html.DisplayNameFor(model => model.ItemId)
+                @Html.ActionLink("ItemId", "Display", new { sortParam = "ItemId", sortOrder = ViewBag.CurrentSort })
+                @*@Html.DisplayNameFor(model => model.SingleOrDefault().ItemId)*@
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.ActionLink("Description", "Display", new { sortParam = "Description", sortOrder = ViewBag.CurrentSort })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                @Html.ActionLink("Price", "Display", new { sortParam ="Price", sortOrder = ViewBag.CurrentSort })
             </th>
             <th>
 
@@ -59,4 +61,8 @@
             </td>
         </tr>
     </table>
+
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("Display", new { page , sortOrder = ViewBag.CurrentSort, sortParam = ViewBag.SortParam }))
 </div>

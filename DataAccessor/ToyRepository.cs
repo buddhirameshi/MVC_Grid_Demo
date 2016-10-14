@@ -11,7 +11,8 @@ namespace DataAccessor
     public class ToyRepository : IRepository<Item>
     {
         private ItemEntities context;
-        private enum ItemParams { Price,ItemId,Description};
+        private enum ItemParams { Price, ItemId, Description };
+        private delegate IEnumerable<Item> SortItems(string sortOrder=null,string sortParam=null); 
 
         public ToyRepository(ItemEntities repository)
         {
@@ -33,14 +34,14 @@ namespace DataAccessor
             {
                 //using (context = new ItemEntities())
                 //{
-                    var selectedItem = context.Items.Find(itemID);
-                    if (selectedItem == null)
-                    {
-                        return false;
-                    }
-                    context.Items.Remove(selectedItem);
-                    return true;
-              //  }
+                var selectedItem = context.Items.Find(itemID);
+                if (selectedItem == null)
+                {
+                    return false;
+                }
+                context.Items.Remove(selectedItem);
+                return true;
+                //  }
             }
             catch (SqlException ex)
             {
@@ -69,11 +70,11 @@ namespace DataAccessor
             {
                 //using (context = new ItemEntities())
                 //{
-                    var oneItem = context.Items
-                        .Where(o => o.ItemId == itemId)
-                        .SingleOrDefault();
-                    return oneItem;
-               // }
+                var oneItem = context.Items
+                    .Where(o => o.ItemId == itemId)
+                    .SingleOrDefault();
+                return oneItem;
+                // }
             }
             catch (SqlException ex)
             {
@@ -89,16 +90,17 @@ namespace DataAccessor
         {
             try
             {
-                IEnumerable<Item> setOfItems = new List<Item>();
-                //using (context = new ItemEntities())
-                //{
-                    var items = context.Items
-                        .Where(someItems => someItems.Description != null)
-                        .OrderBy(someItems => someItems.ItemId)
-                        .Take(10);
-                    setOfItems = items;
-                //}
-                return setOfItems;
+                //IEnumerable<Item> setOfItems = new List<Item>();
+                ////using (context = new ItemEntities())
+                ////{
+                //var items = context.Items
+                //    .Where(someItems => someItems.Description != null)
+                //    .OrderBy(someItems => someItems.ItemId);
+                //setOfItems = items;
+                ////}
+                //return setOfItems;
+                SortItems sortedItems = new SortItems(SortData);
+                return sortedItems();
             }
             catch (SqlException ex)
             {
@@ -108,107 +110,140 @@ namespace DataAccessor
 
 
         /// <summary>
-        /// Get items
+        /// Get items overloaded method
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Item> GetItems(int pageId,int pageSize,string parameter,bool isAscending)
+        public IEnumerable<Item> GetItems(string sortOrder, string sortParam)
         {
             try
             {
-                IEnumerable<Item> setOfItems = new List<Item>();
-                ItemParams enumParamerer;
-                if (!Enum.TryParse(parameter, true, out enumParamerer))
+
+                SortItems sortedItems = new SortItems(SortData);
+               return sortedItems(sortOrder,sortParam);
+            }   
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+}
+
+
+/// <summary>
+/// Insert an item
+/// </summary>
+/// <param name="oneItem"></param>
+/// <returns></returns>
+public bool InsertItem(Item oneItem)
+{
+    if (oneItem == null)
+    {
+        return false;
+    }
+    try
+    {
+        //using (context = new ItemEntities())
+        //{
+        context.Items.Add(oneItem);
+        return true;
+    }
+    //}
+    catch (SqlException ex)
+    {
+        throw ex;
+    }
+}
+
+
+/// <summary>
+/// Update an item
+/// </summary>
+/// <param name="oneItem"></param>
+/// <returns></returns>
+public bool UpdateItem(Item oneItem)
+{
+    if (oneItem == null)
+    {
+        return false;
+    }
+    try
+    {
+
+
+        //context.SaveChanges();
+        var item = context.Items
+                       .Where(n => n.ItemId == oneItem.ItemId)
+                       .SingleOrDefault();
+        item.Description = oneItem.Description;
+        item.Price = oneItem.Price;
+        // context.Entry(oneItem).State = System.Data.Entity.EntityState.Modified;
+        context.SaveChanges();
+
+        return true;
+    }
+    catch (SqlException ex)
+    {
+        throw ex;
+    }
+
+}
+
+     private IEnumerable<Item> SortData(string sortOrder=null,string sortParam=null)
+        {
+            ItemParams enumSortParam;
+            SortOrder sortDir = SortOrder.Descending;
+            IEnumerable<Item> setOfItems = null;
+            if (!Enum.TryParse(sortParam, true, out enumSortParam))
+            {
+                enumSortParam = ItemParams.ItemId;
+            }
+            if (!Enum.TryParse(sortOrder, true, out sortDir))
+            {
+                sortDir = SortOrder.Descending;
+            }
+
+            if (enumSortParam == ItemParams.ItemId)
+            {
+                if (sortDir == SortOrder.Ascending)
                 {
-                    return null;
+                    setOfItems = context.Items
+                                .OrderBy(someItems => someItems.ItemId);
                 }
-                else
+                else if (sortDir == SortOrder.Descending)
                 {
-
-                    if (enumParamerer == ItemParams.Description&&isAscending)
-                    {
-                        var maxValue = context.Items
-                       .Where(someItems => someItems.Description != null)
-                       .OrderBy(someItems => someItems.Description).Take((pageId - 1) * pageSize).Max().Description;
-                        if (string.IsNullOrEmpty(maxValue))
-                        {
-                             setOfItems= context.Items
-                                         .Where(someItems => someItems.Description != null 
-                                         )
-                                        .OrderBy(someItems => someItems.Description).Take((pageId - 1) * pageSize);
-                        }
-                       
-                    }
-
-                    //}
-                    return setOfItems;
+                    setOfItems = context.Items
+                    .OrderByDescending(someItems => someItems.ItemId);
                 }
             }
-            catch (SqlException ex)
-            {
-                throw ex;
-            }
-        }
 
-
-        /// <summary>
-        /// Insert an item
-        /// </summary>
-        /// <param name="oneItem"></param>
-        /// <returns></returns>
-        public bool InsertItem(Item oneItem)
-        {
-            if (oneItem == null)
+            else if (enumSortParam == ItemParams.Description)
             {
-                return false;
-            }
-            try
-            {
-                //using (context = new ItemEntities())
-                //{
-                    context.Items.Add(oneItem);
-                    return true;
+                if (sortDir == SortOrder.Ascending)
+                {
+                    setOfItems = context.Items
+                                .OrderBy(someItems => someItems.Description);
                 }
-            //}
-            catch (SqlException ex)
-            {
-                throw ex;
+                else if (sortDir == SortOrder.Descending)
+                {
+                    setOfItems = context.Items
+                    .OrderByDescending(someItems => someItems.Description);
+                }
             }
+
+            else if (enumSortParam == ItemParams.Price)
+            {
+                if (sortDir == SortOrder.Ascending)
+                {
+                    setOfItems = context.Items
+                                .OrderBy(someItems => someItems.Price);
+                }
+                else if (sortDir == SortOrder.Descending)
+                {
+                    setOfItems = context.Items
+                    .OrderByDescending(someItems => someItems.Price);
+                }
+            }
+            return setOfItems;
         }
-
-
-        /// <summary>
-        /// Update an item
-        /// </summary>
-        /// <param name="oneItem"></param>
-        /// <returns></returns>
-        public bool UpdateItem(Item oneItem)
-        {
-            if (oneItem == null)
-            {
-                return false;
-            }
-            try
-            {
-
-
-                //context.SaveChanges();
-                var item = context.Items
-                               .Where(n => n.ItemId == oneItem.ItemId)
-                               .SingleOrDefault();
-                item.Description = oneItem.Description;
-                item.Price = oneItem.Price;
-                // context.Entry(oneItem).State = System.Data.Entity.EntityState.Modified;
-                context.SaveChanges();
-                
-                return true;
-            }
-            catch (SqlException ex)
-            {
-                throw ex;
-            }
-
-        }
-
 
     }
 }

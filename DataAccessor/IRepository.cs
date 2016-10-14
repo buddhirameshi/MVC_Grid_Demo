@@ -9,6 +9,7 @@ namespace DataAccessor
     public interface IRepository<T> :IDisposable
     {
             IEnumerable<T> GetItems();
+           IEnumerable<T> GetItems(string sortOrder,string sortParam);
             Item GetItemByID(int itemId);
             bool InsertItem(T oneItem);
             bool DeleteItem(int itemID);

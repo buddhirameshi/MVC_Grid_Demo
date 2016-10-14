@@ -6,6 +6,8 @@ using System.Web.Mvc;
 using API;
 using DataTransferObjects;
 using System.Data;
+using PagedList;
+using Common;
 
 namespace GridDataDisplay.Controllers
 {
@@ -13,16 +15,39 @@ namespace GridDataDisplay.Controllers
     {
         private ItemService service = new ItemService();
         private ObjectConverter converter = new ObjectConverter();
+       static int pageNumber=0; //this filed is static in order to keep the track of the page indexes. Useful to keep the track of sorting order in pagingation
+
 
         // GET: Items list
-        public ActionResult Display()
+        public ActionResult Display(int?page,string sortOrder, string sortParam)
+
         {
-            //  var abc = service.GetData();
             try
             {
-                return View(service.GetDataSet());
+                if(pageNumber==0)
+                {
+                    ViewBag.CurrentSort = "Descending";
+                }
+               else if(pageNumber<page)
+                {
+                    ViewBag.CurrentSort = string.IsNullOrEmpty(sortOrder) ? "Descending" : sortOrder;
+                }
+               else 
+                {
+                    ViewBag.CurrentSort = string.IsNullOrEmpty(sortOrder) ? "Descending" : this.ReverseSortOrder(sortOrder);
+                }
+               
+
+
+                ViewBag.SortParam = string.IsNullOrEmpty(sortParam) ? "ItemId" : sortParam;
+                 ViewBag.CurrentSort = string.IsNullOrEmpty(sortOrder) ? "Descending" : this.ReverseSortOrder(sortOrder);
+                sortOrder = ViewBag.CurrentSort;
+                int pageSize = ConfigDataReader.GetConfigIntValue("PageSize");
+                pageNumber= (page ?? 1);
+
+                return View(service.GetDataSet(sortOrder, sortParam).ToPagedList(pageNumber, pageSize));
             }
-            catch (NullReferenceException)
+            catch (NullReferenceException ex)
             {
                 return HttpNotFound();
             }
@@ -47,6 +72,22 @@ namespace GridDataDisplay.Controllers
         }
 
 
+        //FOR MULTIPLE SUBMIT BUTTONS
+        //[HttpPost]
+        //[MultipleButton(Name = "action", Argument = "Save")]
+        //public void Edit(ItemDto mm)
+        //{
+        //    var toin = mm.Description;
+
+        //}
+
+        //[HttpPost]
+        //[MultipleButton(Name = "action", Argument = "Clear")]
+        //public void Edit(ItemDto mm,string type)
+        //{
+        //    var toin = mm.Description;
+
+        //}
 
 
         /// <summary>
@@ -58,7 +99,15 @@ namespace GridDataDisplay.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Price,Description,ItemId")] ItemDto item)
         {
-
+            //TODO MULTIPLE BUTTON SCENARIO WITH AN INPUT PARAMETER NAMED submit 
+            ////if(string.Equals(submit,"Save"))
+            ////{
+            ////    var t = "";
+            ////}
+            ////else if (string.Equals(submit, "Clear"))
+            ////{
+            ////    var t = "";
+            ////}
             if (item == null || item.Price == null || item.ItemId == 0 || item.ItemId < 0)
             {
                 return LoadErrorView();
@@ -69,11 +118,12 @@ namespace GridDataDisplay.Controllers
                 {
                     //db.Entry(movie).State = EntityState.Modified;
                     //db.SaveChanges();
+                    ModelState.Clear();
                     return RedirectToAction("Display");
                 }
                 else
                 {
-                    return RedirectToAction("Edit",new { id=item.ItemId});
+                    return RedirectToAction("Edit", new { id = item.ItemId });
                 }
             }
             catch (DataException ex)
@@ -113,6 +163,7 @@ namespace GridDataDisplay.Controllers
             {
                 if (service.InsertData(item))
                 {
+                    ModelState.Clear();
                     return RedirectToAction("Display");
                 }
                 else
@@ -166,6 +217,7 @@ namespace GridDataDisplay.Controllers
             {
                 if (service.DeleteItem(itemId))
                 {
+
                     return RedirectToAction("Display");
                 }
 
@@ -187,6 +239,36 @@ namespace GridDataDisplay.Controllers
         {
             ViewBag.ErroMessage = "Item is empty";
             return View("InputError");
+        }
+
+
+        /// <summary>
+        /// Altering the existing sorting direction
+        /// </summary>
+        /// <param name="sortDir"></param>
+        /// <returns></returns>
+        private string ReverseSortOrder(string sortDir)
+        {
+            string dir = string.Empty;
+           switch(sortDir)
+            {
+                case "Descending":
+                    {
+                        sortDir = "Ascending";
+                        break;
+                    }
+                case "Ascending":
+                    {
+                        sortDir = "Descending";
+                        break;
+                    }
+                default:
+                    {
+                        sortDir = "Descending";
+                        break;
+                    }
+            }
+            return sortDir;
         }
     }
 }
