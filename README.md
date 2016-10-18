@@ -6,7 +6,7 @@ This includes;
 Create , Update,Read and Delete Operation of data
 Pagination
 Sorting
-Applying CSS Styles to data
+Applying CSS Styles
 
 Below are the simple 1-2-3 steps for deployment.
 
